@@ -1,0 +1,1408 @@
+For your hackathon, the BEST approach is:
+
+```text
+Monitor only PUBLIC + FREE + EASY-TO-SCRAPE sources
+```
+
+Do NOT depend on:
+
+* private APIs
+* LinkedIn automation
+* paid enterprise datasets
+
+Your goal is:
+
+> detect enterprise trigger signals reliably.
+
+---
+
+# BEST FREE PUBLIC SOURCES TO MONITOR
+
+---
+
+# 1. Google News RSS (MOST IMPORTANT)
+
+## Why
+
+This is the BEST hackathon source.
+
+You can monitor:
+
+```text
+Funding
+Leadership changes
+Acquisitions
+Expansion
+AI adoption
+Cloud migration
+Product launches
+Partnerships
+Layoffs
+```
+
+---
+
+## Example
+
+```text
+https://news.google.com/rss/search?q=Microsoft+AI+cloud+leadership
+```
+
+OR
+
+```text
+https://news.google.com/rss/search?q=Salesforce+funding+cloud+acquisition
+```
+
+---
+
+## Why powerful
+
+Google aggregates:
+
+* news websites
+* press releases
+* blogs
+* media publications
+
+So:
+
+```text
+1 RSS feed → many sources
+```
+
+---
+
+## What to scrape
+
+```text
+Article title
+Article link
+Published date
+Snippet
+```
+
+---
+
+## Triggers detectable
+
+```text
+Funding
+AI adoption
+Leadership change
+Expansion
+Acquisition
+Product launch
+Cloud migration
+Hiring
+```
+
+---
+
+# 2. Company Press Release Pages
+
+VERY valuable.
+
+Examples:
+
+```text
+/company/news
+/company/press
+/company/media
+/company/blog
+```
+
+---
+
+## What you detect
+
+```text
+Executive appointments
+Partnerships
+Product launches
+Global expansion
+AI announcements
+Transformation initiatives
+```
+
+---
+
+## Why important
+
+These are:
+
+```text
+official business signals
+```
+
+Higher quality than random news.
+
+---
+
+# 3. Company Careers Pages (EXTREMELY IMPORTANT)
+
+This is one of the BEST enterprise signals.
+
+Examples:
+
+```text
+/company/careers
+/jobs
+```
+
+---
+
+## What you monitor
+
+New hiring for:
+
+```text
+AI Engineers
+Cloud Engineers
+DevOps
+Platform Engineering
+Data Engineers
+Security Engineers
+```
+
+---
+
+## What it means
+
+Example:
+
+```text
+Hiring Kubernetes engineers
+→ likely cloud scaling
+
+Hiring AI engineers
+→ AI adoption initiative
+
+Hiring DevOps engineers
+→ modernization effort
+```
+
+This is AMAZING sales intelligence.
+
+---
+
+# 4. Corporate Blogs / Engineering Blogs
+
+Examples:
+
+```text
+engineering.company.com
+tech.company.com/blog
+```
+
+---
+
+## What you detect
+
+```text
+Migration to Kubernetes
+AWS adoption
+AI platform launch
+Data platform modernization
+Microservices adoption
+Observability rollout
+```
+
+---
+
+## Very useful for Relanto
+
+Because these directly map to:
+
+```text
+Cloud
+AI
+Data engineering
+DevOps
+Modernization
+```
+
+---
+
+# 5. RSS Feeds (Very Useful)
+
+Many companies and publications expose RSS.
+
+Example:
+
+```text
+TechCrunch RSS
+Crunchbase News RSS
+Company RSS
+Industry RSS
+```
+
+---
+
+## Best RSS categories
+
+```text
+AI news
+Cloud news
+Enterprise technology
+Startup funding
+Digital transformation
+```
+
+---
+
+# 6. Public Leadership Pages
+
+Examples:
+
+```text
+/company/leadership
+/company/team
+```
+
+---
+
+## What you detect
+
+```text
+New CTO
+New CIO
+Chief Digital Officer
+AI Head
+Transformation Head
+```
+
+---
+
+## Why useful
+
+Leadership changes often mean:
+
+```text
+new transformation initiatives
+new budgets
+new modernization plans
+```
+
+---
+
+# 7. Product Launch Pages
+
+Monitor:
+
+```text
+Product announcements
+Release notes
+Launch blogs
+```
+
+---
+
+## Detect
+
+```text
+New AI product
+Enterprise platform launch
+Cloud-native product
+SaaS expansion
+```
+
+---
+
+# 8. Conference / Webinar Pages
+
+VERY underrated.
+
+Monitor:
+
+```text
+Webinars
+Conference talks
+Speaker sessions
+```
+
+---
+
+## Detect
+
+```text
+AI initiatives
+Transformation focus
+Technology priorities
+Executive focus areas
+```
+
+---
+
+# 9. GitHub Trending / Company Open Source
+
+For technical companies.
+
+Monitor:
+
+```text
+GitHub org activity
+New repos
+Open-source releases
+```
+
+---
+
+## Detect
+
+```text
+AI projects
+Kubernetes adoption
+Developer platform expansion
+Infrastructure modernization
+```
+
+---
+
+# 10. Reddit / Hacker News
+
+Good for:
+
+* startup activity
+* AI movement
+* engineering trends
+
+---
+
+## Detect
+
+```text
+AI adoption
+Funding discussions
+Tech migration
+Developer ecosystem movement
+```
+
+---
+
+# 11. Public SEC / Investor Filings
+
+For large companies.
+
+Monitor:
+
+```text
+10-K
+Investor reports
+Quarterly reports
+```
+
+---
+
+## Detect
+
+```text
+Expansion
+Restructuring
+Cloud investment
+AI investment
+Operational transformation
+```
+
+---
+
+# 12. Open Job APIs
+
+Some companies expose:
+
+* Greenhouse
+* Lever
+* Workday
+
+---
+
+## Example
+
+```text
+boards.greenhouse.io
+lever.co
+```
+
+---
+
+## Amazing for detecting
+
+```text
+Hiring surge
+AI adoption
+Cloud transformation
+Data platform expansion
+```
+
+---
+
+# BEST SOURCES FOR YOUR PROJECT
+
+## PRIORITY 1 (MUST USE)
+
+Use these FIRST:
+
+```text
+Google News RSS
+Company press releases
+Careers pages
+Engineering blogs
+```
+
+These alone are enough.
+
+---
+
+# WHAT TO MONITOR FOR EACH COMPANY
+
+For each of 50 companies:
+
+```text
+1. Google News RSS
+2. Company news page
+3. Careers page
+4. Engineering blog
+```
+
+That’s enough for:
+
+```text
+continuous trigger monitoring
+```
+
+---
+
+# BEST TRIGGERS TO DETECT
+
+---
+
+# Funding
+
+Keywords:
+
+```text
+raised
+funding
+investment
+series A/B/C
+capital
+```
+
+---
+
+# Leadership Change
+
+Keywords:
+
+```text
+appointed
+new CTO
+new CIO
+joins as
+chief digital officer
+```
+
+---
+
+# Hiring Surge
+
+Keywords:
+
+```text
+hiring
+open roles
+expanding engineering team
+recruiting
+```
+
+---
+
+# AI Adoption
+
+Keywords:
+
+```text
+AI
+GenAI
+machine learning
+LLM
+automation
+```
+
+---
+
+# Cloud Migration
+
+Keywords:
+
+```text
+AWS
+Azure
+GCP
+Kubernetes
+migration
+cloud-native
+```
+
+---
+
+# Expansion
+
+Keywords:
+
+```text
+new office
+expansion
+global expansion
+new market
+scaling operations
+```
+
+---
+
+# Acquisition / Merger
+
+Keywords:
+
+```text
+acquired
+acquisition
+merged
+partnership
+```
+
+---
+
+# Product Launch
+
+Keywords:
+
+```text
+launches
+introduces
+new platform
+release
+```
+
+---
+
+# BEST SCRAPING STRATEGY
+
+DO NOT scrape entire websites continuously.
+
+Instead:
+
+```text
+1. Pull RSS/news first
+2. Extract article links
+3. Fetch only relevant articles
+4. Store content
+5. Detect trigger
+```
+
+This is:
+
+```text
+faster
+safer
+more scalable
+```
+
+---
+
+# HOW TO STORE SCRAPED DATA
+
+Store:
+
+```text
+company_id
+title
+url
+source_type
+content
+published_date
+scraped_at
+trigger_detected
+```
+
+---
+
+# MONITORING FLOW
+
+```text
+Scheduler starts
+      ↓
+Loop through 50 companies
+      ↓
+Fetch RSS/news/blog/careers
+      ↓
+Extract article/job data
+      ↓
+Clean text
+      ↓
+Detect triggers
+      ↓
+Map to Relanto service
+      ↓
+Generate outreach recommendation
+      ↓
+Store in DB
+      ↓
+Show in dashboard
+```
+
+---
+
+# HOW OFTEN TO MONITOR
+
+For hackathon:
+
+```text
+Every 15 mins
+OR
+Manual “Run Monitoring” button
+```
+
+---
+
+# BEST PRACTICAL MVP
+
+If time is less:
+
+ONLY monitor:
+
+```text
+Google News RSS
++
+Careers pages
+```
+
+This alone is enough for:
+
+* funding
+* hiring
+* AI adoption
+* cloud migration
+* leadership changes
+
+---
+
+# MOST ENTERPRISE-GRADE COMBINATION
+
+Use:
+
+```text
+Google News RSS
++
+Company press releases
++
+Careers pages
++
+Engineering blogs
+```
+
+This is the BEST realistic free intelligence pipeline.
+For your hackathon, the BEST approach is:
+
+```text
+Monitor only PUBLIC + FREE + EASY-TO-SCRAPE sources
+```
+
+Do NOT depend on:
+
+* private APIs
+* LinkedIn automation
+* paid enterprise datasets
+
+Your goal is:
+
+> detect enterprise trigger signals reliably.
+
+---
+
+# BEST FREE PUBLIC SOURCES TO MONITOR
+
+---
+
+# 1. Google News RSS (MOST IMPORTANT)
+
+## Why
+
+This is the BEST hackathon source.
+
+You can monitor:
+
+```text
+Funding
+Leadership changes
+Acquisitions
+Expansion
+AI adoption
+Cloud migration
+Product launches
+Partnerships
+Layoffs
+```
+
+---
+
+## Example
+
+```text
+https://news.google.com/rss/search?q=Microsoft+AI+cloud+leadership
+```
+
+OR
+
+```text
+https://news.google.com/rss/search?q=Salesforce+funding+cloud+acquisition
+```
+
+---
+
+## Why powerful
+
+Google aggregates:
+
+* news websites
+* press releases
+* blogs
+* media publications
+
+So:
+
+```text
+1 RSS feed → many sources
+```
+
+---
+
+## What to scrape
+
+```text
+Article title
+Article link
+Published date
+Snippet
+```
+
+---
+
+## Triggers detectable
+
+```text
+Funding
+AI adoption
+Leadership change
+Expansion
+Acquisition
+Product launch
+Cloud migration
+Hiring
+```
+
+---
+
+# 2. Company Press Release Pages
+
+VERY valuable.
+
+Examples:
+
+```text
+/company/news
+/company/press
+/company/media
+/company/blog
+```
+
+---
+
+## What you detect
+
+```text
+Executive appointments
+Partnerships
+Product launches
+Global expansion
+AI announcements
+Transformation initiatives
+```
+
+---
+
+## Why important
+
+These are:
+
+```text
+official business signals
+```
+
+Higher quality than random news.
+
+---
+
+# 3. Company Careers Pages (EXTREMELY IMPORTANT)
+
+This is one of the BEST enterprise signals.
+
+Examples:
+
+```text
+/company/careers
+/jobs
+```
+
+---
+
+## What you monitor
+
+New hiring for:
+
+```text
+AI Engineers
+Cloud Engineers
+DevOps
+Platform Engineering
+Data Engineers
+Security Engineers
+```
+
+---
+
+## What it means
+
+Example:
+
+```text
+Hiring Kubernetes engineers
+→ likely cloud scaling
+
+Hiring AI engineers
+→ AI adoption initiative
+
+Hiring DevOps engineers
+→ modernization effort
+```
+
+This is AMAZING sales intelligence.
+
+---
+
+# 4. Corporate Blogs / Engineering Blogs
+
+Examples:
+
+```text
+engineering.company.com
+tech.company.com/blog
+```
+
+---
+
+## What you detect
+
+```text
+Migration to Kubernetes
+AWS adoption
+AI platform launch
+Data platform modernization
+Microservices adoption
+Observability rollout
+```
+
+---
+
+## Very useful for Relanto
+
+Because these directly map to:
+
+```text
+Cloud
+AI
+Data engineering
+DevOps
+Modernization
+```
+
+---
+
+# 5. RSS Feeds (Very Useful)
+
+Many companies and publications expose RSS.
+
+Example:
+
+```text
+TechCrunch RSS
+Crunchbase News RSS
+Company RSS
+Industry RSS
+```
+
+---
+
+## Best RSS categories
+
+```text
+AI news
+Cloud news
+Enterprise technology
+Startup funding
+Digital transformation
+```
+
+---
+
+# 6. Public Leadership Pages
+
+Examples:
+
+```text
+/company/leadership
+/company/team
+```
+
+---
+
+## What you detect
+
+```text
+New CTO
+New CIO
+Chief Digital Officer
+AI Head
+Transformation Head
+```
+
+---
+
+## Why useful
+
+Leadership changes often mean:
+
+```text
+new transformation initiatives
+new budgets
+new modernization plans
+```
+
+---
+
+# 7. Product Launch Pages
+
+Monitor:
+
+```text
+Product announcements
+Release notes
+Launch blogs
+```
+
+---
+
+## Detect
+
+```text
+New AI product
+Enterprise platform launch
+Cloud-native product
+SaaS expansion
+```
+
+---
+
+# 8. Conference / Webinar Pages
+
+VERY underrated.
+
+Monitor:
+
+```text
+Webinars
+Conference talks
+Speaker sessions
+```
+
+---
+
+## Detect
+
+```text
+AI initiatives
+Transformation focus
+Technology priorities
+Executive focus areas
+```
+
+---
+
+# 9. GitHub Trending / Company Open Source
+
+For technical companies.
+
+Monitor:
+
+```text
+GitHub org activity
+New repos
+Open-source releases
+```
+
+---
+
+## Detect
+
+```text
+AI projects
+Kubernetes adoption
+Developer platform expansion
+Infrastructure modernization
+```
+
+---
+
+# 10. Reddit / Hacker News
+
+Good for:
+
+* startup activity
+* AI movement
+* engineering trends
+
+---
+
+## Detect
+
+```text
+AI adoption
+Funding discussions
+Tech migration
+Developer ecosystem movement
+```
+
+---
+
+# 11. Public SEC / Investor Filings
+
+For large companies.
+
+Monitor:
+
+```text
+10-K
+Investor reports
+Quarterly reports
+```
+
+---
+
+## Detect
+
+```text
+Expansion
+Restructuring
+Cloud investment
+AI investment
+Operational transformation
+```
+
+---
+
+# 12. Open Job APIs
+
+Some companies expose:
+
+* Greenhouse
+* Lever
+* Workday
+
+---
+
+## Example
+
+```text
+boards.greenhouse.io
+lever.co
+```
+
+---
+
+## Amazing for detecting
+
+```text
+Hiring surge
+AI adoption
+Cloud transformation
+Data platform expansion
+```
+
+---
+
+# BEST SOURCES FOR YOUR PROJECT
+
+## PRIORITY 1 (MUST USE)
+
+Use these FIRST:
+
+```text
+Google News RSS
+Company press releases
+Careers pages
+Engineering blogs
+```
+
+These alone are enough.
+
+---
+
+# WHAT TO MONITOR FOR EACH COMPANY
+
+For each of 50 companies:
+
+```text
+1. Google News RSS
+2. Company news page
+3. Careers page
+4. Engineering blog
+```
+
+That’s enough for:
+
+```text
+continuous trigger monitoring
+```
+
+---
+
+# BEST TRIGGERS TO DETECT
+
+---
+
+# Funding
+
+Keywords:
+
+```text
+raised
+funding
+investment
+series A/B/C
+capital
+```
+
+---
+
+# Leadership Change
+
+Keywords:
+
+```text
+appointed
+new CTO
+new CIO
+joins as
+chief digital officer
+```
+
+---
+
+# Hiring Surge
+
+Keywords:
+
+```text
+hiring
+open roles
+expanding engineering team
+recruiting
+```
+
+---
+
+# AI Adoption
+
+Keywords:
+
+```text
+AI
+GenAI
+machine learning
+LLM
+automation
+```
+
+---
+
+# Cloud Migration
+
+Keywords:
+
+```text
+AWS
+Azure
+GCP
+Kubernetes
+migration
+cloud-native
+```
+
+---
+
+# Expansion
+
+Keywords:
+
+```text
+new office
+expansion
+global expansion
+new market
+scaling operations
+```
+
+---
+
+# Acquisition / Merger
+
+Keywords:
+
+```text
+acquired
+acquisition
+merged
+partnership
+```
+
+---
+
+# Product Launch
+
+Keywords:
+
+```text
+launches
+introduces
+new platform
+release
+```
+
+---
+
+# BEST SCRAPING STRATEGY
+
+DO NOT scrape entire websites continuously.
+
+Instead:
+
+```text
+1. Pull RSS/news first
+2. Extract article links
+3. Fetch only relevant articles
+4. Store content
+5. Detect trigger
+```
+
+This is:
+
+```text
+faster
+safer
+more scalable
+```
+
+---
+
+# HOW TO STORE SCRAPED DATA
+
+Store:
+
+```text
+company_id
+title
+url
+source_type
+content
+published_date
+scraped_at
+trigger_detected
+```
+
+---
+
+# MONITORING FLOW
+
+```text
+Scheduler starts
+      ↓
+Loop through 50 companies
+      ↓
+Fetch RSS/news/blog/careers
+      ↓
+Extract article/job data
+      ↓
+Clean text
+      ↓
+Detect triggers
+      ↓
+Map to Relanto service
+      ↓
+Generate outreach recommendation
+      ↓
+Store in DB
+      ↓
+Show in dashboard
+```
+
+---
+
+# HOW OFTEN TO MONITOR
+
+For hackathon:
+
+```text
+Every 15 mins
+OR
+Manual “Run Monitoring” button
+```
+
+---
+
+# BEST PRACTICAL MVP
+
+If time is less:
+
+ONLY monitor:
+
+```text
+Google News RSS
++
+Careers pages
+```
+
+This alone is enough for:
+
+* funding
+* hiring
+* AI adoption
+* cloud migration
+* leadership changes
+
+---
+
+# MOST ENTERPRISE-GRADE COMBINATION
+
+Use:
+
+```text
+Google News RSS
++
+Company press releases
++
+Careers pages
++
+Engineering blogs
+```
+
+This is the BEST realistic free intelligence pipeline.
