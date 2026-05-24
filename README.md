@@ -11,7 +11,7 @@ An AI-driven, multi-tenant backend built for modern sales teams. This pipeline a
 3. **AI Heuristic Pre-Filtering:** A blazing-fast strategic keyword scanner that drops 90% of generic news noise instantly, preventing API rate limits and saving LLM costs.
 4. **SLM-Powered Trigger Detection:** Utilizes Meta's hyper-fast `Llama-3.1-8b-instant` model on Groq to map raw news articles to actionable Relanto Service Offerings (e.g., Cloud Modernization, Data Engineering).
 5. **Intelligent Lead Routing:** Newly discovered triggers are automatically and randomly assigned to active Sales Reps for immediate human outreach.
-6. **Live Hackathon Sandbox:** Includes a completely detached Mock Demo Corp server running on port 8001 to guarantee deterministic, successful AI demonstrations during live pitches.
+6. **Live Sandbox Environment:** Includes a completely detached Mock Demo Corp server running on port 8001 to guarantee deterministic, successful AI demonstrations and sandbox testing.
 
 ---
 
@@ -87,10 +87,10 @@ Use the following endpoints to verify the system end-to-end.
 
 ---
 
-## 🛠️ Hackathon Demo instructions
+## 🛠️ Sandbox Demo Instructions
 
-To guarantee a perfect live demo:
-1. Ensure both servers are running.
-2. In Postman, hit `POST http://localhost:8001/publish` to inject a fake "$50M Series B Cloud Expansion" article into the Mock Demo Corp website.
-3. Hit `POST http://localhost:8000/api/scraper/run`. The backend heuristic queue has been hardcoded to prioritize `company_id=1` (Demo Corp), guaranteeing your mock article bypasses the queue and is immediately sent to the Groq AI.
-4. Log in as an Admin and hit `GET /api/triggers/` to show the audience the beautifully mapped JSON output!
+To guarantee a perfect sandbox test run:
+1. Ensure both the main API and mock servers are running.
+2. In Postman, hit `POST http://localhost:8001/publish` to inject a simulated "$50M Series B Cloud Expansion" article into the Mock Demo Corp website.
+3. Hit `POST http://localhost:8000/api/scraper/run`. The backend heuristic queue will process Demo Corp (`company_id=1`), guaranteeing your mock article is immediately sent to the Groq AI for analysis.
+4. Log in as an Admin and hit `GET /api/triggers/` to view the successfully mapped JSON trigger output.
