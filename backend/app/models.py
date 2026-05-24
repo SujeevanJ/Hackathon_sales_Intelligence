@@ -135,3 +135,18 @@ class MonitoringLog(Base):
     executed_at = Column(DateTime(timezone=True), server_default=func.now())
 
     company = relationship("Company", back_populates="monitoring_logs")
+
+class ChatbotAuditLog(Base):
+    __tablename__ = "chatbot_audit_log"
+
+    id = Column(String, primary_key=True, index=True)
+    session_id = Column(String, index=True)
+    user_id = Column(String, nullable=True)
+    message = Column(Text)
+    detected_intent = Column(String, nullable=True)
+    guardrail_action = Column(String)
+    deny_reason = Column(String, nullable=True)
+    api_endpoint_called = Column(String, nullable=True)
+    response_tokens = Column(Integer, nullable=True)
+    latency_ms = Column(Integer, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
