@@ -19,7 +19,13 @@ def get_outreaches(skip: int = 0, limit: int = 100, db: Session = Depends(get_db
 def get_outreach_by_trigger(trigger_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     outreach = db.query(OutreachBrief).filter(OutreachBrief.trigger_id == trigger_id).first()
     if not outreach:
-        raise HTTPException(status_code=404, detail="Outreach brief not found")
+        from app.services.outreach_service import process_outreach_pipeline
+        try:
+            outreach = process_outreach_pipeline(db, trigger_id)
+            if not outreach:
+                raise HTTPException(status_code=404, detail="Failed to generate outreach brief")
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error generating outreach brief: {str(e)}")
     return outreach
 
 @router.get("/stats", summary="Get outreach analytics")
