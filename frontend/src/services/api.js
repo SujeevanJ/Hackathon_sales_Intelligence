@@ -99,3 +99,13 @@ export async function getOutreachByTrigger(token, triggerId) {
   })
   return handleResponse(res)
 }
+
+// ── Chat ──────────────────────────────────────────────
+export async function sendChatMessage(token, messages) {
+  const res = await fetch(`${BASE}/chat/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeader(token) },
+    body: JSON.stringify({ messages }),
+  })
+  return handleResponse(res)
+}

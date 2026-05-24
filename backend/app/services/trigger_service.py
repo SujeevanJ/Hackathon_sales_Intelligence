@@ -113,7 +113,7 @@ def process_unprocessed_articles(db: Session):
             case((ScrapedArticle.company_id == 1, 0), else_=1),
             ScrapedArticle.scraped_at.desc()
         )\
-        .limit(50).all()
+        .limit(20).all()
     
     triggers_found = 0
     articles_skipped = 0
@@ -141,7 +141,7 @@ def process_unprocessed_articles(db: Session):
                     logger.error(f"Failed to process outreach pipeline: {e}")
             
             # Groq free tier limit is ~30 RPM. Sleep to avoid 429 errors.
-            time.sleep(2.5)
+            time.sleep(1)
             
         # 3. Always mark as processed, even if no trigger found
         article.is_processed = True

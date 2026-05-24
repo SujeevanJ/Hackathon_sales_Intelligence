@@ -11,6 +11,7 @@ import GlobalMap from './pages/GlobalMap'
 import Login from './pages/Login'
 import { useState } from 'react'
 import { useAuth } from './context/AuthContext'
+import ChatWidget from './components/ui/ChatWidget'
 
 function ProtectedRoute() {
   const { isAuthenticated } = useAuth()
@@ -25,6 +26,7 @@ function ProtectedRoute() {
           <Outlet />
         </div>
       </div>
+      <ChatWidget />
     </div>
   )
 }

@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 from app.database import engine, Base
-from app.routes import seed_routes, company_routes, scraper_routes, trigger_routes, auth_routes, outreach_routes
+from app.routes import seed_routes, company_routes, scraper_routes, trigger_routes, auth_routes, outreach_routes, chat_routes
 from app.workers.monitor_worker import start_scheduler
 import logging
 
@@ -46,6 +46,7 @@ app.include_router(company_routes.router, prefix="/api/companies", tags=["Compan
 app.include_router(scraper_routes.router, prefix="/api/scraper", tags=["Scraper"])
 app.include_router(trigger_routes.router, prefix="/api/triggers", tags=["Triggers"])
 app.include_router(outreach_routes.router, prefix="/api/outreaches", tags=["Outreaches"])
+app.include_router(chat_routes.router, prefix="/api/chat", tags=["Chat"])
 
 @app.get("/", tags=["Health"])
 def health_check():
