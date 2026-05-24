@@ -95,7 +95,7 @@ def llm_guardrail(message: str, session_id: str, user_id: Optional[str] = None) 
     system_instruction = """
     You are a safety guardrail system for a B2B sales intelligence platform chatbot.
     Classify the user's input message into one of these intent categories:
-    - SAFE_READ: Reading triggers, companies, contacts, timing
+    - SAFE_READ: Reading triggers, companies, contacts, timing. Answering clarification questions with single entities (e.g. 'alphabet', 'google'). Checking or querying the database for information.
     - ANALYTICS: Counts, summaries, trends of sales data
     - FAQ: General platform questions, definitions, user guides
     - OUT_OF_SCOPE: Chat/jokes/weather/political/personal or unrelated to business sales intelligence

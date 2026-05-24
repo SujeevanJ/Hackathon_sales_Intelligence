@@ -18,19 +18,40 @@ async def resolve_company_name(name: str, token: str) -> Optional[Dict[str, Any]
                 return None
                 
             companies = resp.json()
-            # Try exact match
+            # Try exact match and aliases
+            aliases = {
+                "alphabet": "google",
+                "google": "alphabet",
+                "meta": "facebook",
+                "facebook": "meta"
+            }
+            query_lower = name.lower()
+            query_lower = aliases.get(query_lower, query_lower)
+            
             for c in companies:
-                if c["name"].lower() == name.lower():
+                if c["name"].lower() == query_lower:
                     return c
             # Try substring match
             for c in companies:
-                if name.lower() in c["name"].lower() or c["name"].lower() in name.lower():
+                if query_lower in c["name"].lower() or c["name"].lower() in query_lower:
                     return c
                     
             return None
         except Exception as e:
             print(f"Exception resolving company name: {e}")
             return None
+
+async def enrich_triggers_with_company_names(client: httpx.AsyncClient, triggers: List[Dict[str, Any]], headers: Dict[str, str]) -> List[Dict[str, Any]]:
+    try:
+        comp_resp = await client.get(f"{config.INTERNAL_API_URL}/api/companies/?limit=1000", headers=headers)
+        if comp_resp.status_code == 200:
+            companies = comp_resp.json()
+            company_map = {c["id"]: c["name"] for c in companies}
+            for t in triggers:
+                t["company_name"] = company_map.get(t.get("company_id"), f"Company ID {t.get('company_id')}")
+    except Exception as e:
+        print(f"Failed to enrich triggers with company names: {e}")
+    return triggers
 
 async def build_and_execute_query(intent_type: str, entities: Dict[str, Any], filters: Dict[str, Any], token: str) -> Dict[str, Any]:
     """
@@ -72,9 +93,11 @@ async def build_and_execute_query(intent_type: str, entities: Dict[str, Any], fi
                     
                 elif intent_type == "get_triggers_by_company":
                     trig_resp = await client.get(f"{config.INTERNAL_API_URL}/api/companies/{company_id}/triggers", headers=headers)
+                    triggers = trig_resp.json()[:limit] if trig_resp.status_code == 200 else []
+                    triggers = await enrich_triggers_with_company_names(client, triggers, headers)
                     return {
                         "data_source": f"GET /api/companies/{company_id}/triggers",
-                        "data": trig_resp.json()[:limit] if trig_resp.status_code == 200 else []
+                        "data": triggers
                     }
                     
                 elif intent_type == "get_contacts_for_company":
@@ -113,6 +136,7 @@ async def build_and_execute_query(intent_type: str, entities: Dict[str, Any], fi
                 
                 triggers = trig_resp.json()
                 filtered = [t for t in triggers if event_type in t.get("event_type", "").lower()]
+                filtered = await enrich_triggers_with_company_names(client, filtered, headers)
                 return {
                     "data_source": "GET /api/triggers/ (Filtered by type)",
                     "data": filtered[:limit]
@@ -120,9 +144,11 @@ async def build_and_execute_query(intent_type: str, entities: Dict[str, Any], fi
 
             elif intent_type == "get_triggers_recent":
                 trig_resp = await client.get(f"{config.INTERNAL_API_URL}/api/triggers/?limit={limit}", headers=headers)
+                triggers = trig_resp.json() if trig_resp.status_code == 200 else []
+                triggers = await enrich_triggers_with_company_names(client, triggers, headers)
                 return {
                     "data_source": "GET /api/triggers/",
-                    "data": trig_resp.json() if trig_resp.status_code == 200 else []
+                    "data": triggers
                 }
 
             elif intent_type == "get_outreach_brief":
