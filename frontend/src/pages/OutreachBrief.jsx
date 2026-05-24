@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import {
   ArrowLeft, Calendar, Globe, AlertTriangle, CheckCircle,
   Clock, Target, Send, Archive, Printer, ChevronRight,
-  Briefcase, MessageSquare, Tag, Loader2
+  Briefcase, MessageSquare, Tag, Loader2, Mail, Link, Phone
 } from 'lucide-react'
 import { PageWrapper } from '../components/layout/PageWrapper'
 import { EventTypeBadge, StatusBadge } from '../components/ui/Badge'
@@ -13,8 +13,9 @@ import { CopyButton } from '../components/ui/CopyButton'
 import { Heatmap } from '../components/ui/Heatmap'
 
 import { useApiData } from '../hooks/useApiData'
-import { getTriggers, getCompanies } from '../services/api'
+import { getTriggers, getCompanies, getOutreachByTrigger } from '../services/api'
 import { transformTrigger, buildCompaniesMap } from '../services/transform'
+import { useAuth } from '../context/AuthContext'
 
 function timeAgo(ts) {
   if (!ts) return 'Unknown'
@@ -48,9 +49,25 @@ export default function OutreachBrief() {
   const navigate = useNavigate()
   const [narrative, setNarrative] = useState('')
   const [markedSent, setMarkedSent] = useState(false)
+  const [outreachBrief, setOutreachBrief] = useState(null)
+  const [activeTab, setActiveTab] = useState('email') // email, linkedin, whatsapp
+  const { token } = useAuth()
 
   const { data: rawCompanies, loading: cLoading } = useApiData(getCompanies)
   const { data: rawTriggers, loading: tLoading } = useApiData(getTriggers)
+
+  useEffect(() => {
+    async function fetchOutreach() {
+      if (!triggerId) return
+      try {
+        const brief = await getOutreachByTrigger(token, triggerId)
+        setOutreachBrief(brief)
+      } catch (e) {
+        console.error("Could not fetch outreach brief", e)
+      }
+    }
+    fetchOutreach()
+  }, [triggerId, token])
 
   const trigger = useMemo(() => {
     if (cLoading || tLoading) return null
@@ -61,10 +78,12 @@ export default function OutreachBrief() {
   }, [rawTriggers, rawCompanies, cLoading, tLoading, triggerId])
 
   useEffect(() => {
-    if (trigger && !narrative) {
-      setNarrative(trigger.outreachNarrative)
+    if (outreachBrief && !narrative) {
+      setNarrative(outreachBrief.body)
+    } else if (trigger && !outreachBrief && !narrative) {
+      setNarrative("Pipeline is still generating or no brief found...")
     }
-  }, [trigger])
+  }, [trigger, outreachBrief])
 
   if (cLoading || tLoading) {
     return (
@@ -192,47 +211,100 @@ export default function OutreachBrief() {
               )}
             </Section>
 
-            {/* Outreach recommendations */}
+            {/* Outreach Recommendations */}
             <Section title="Outreach Recommendations" icon={MessageSquare} accent="cyan">
               <div className="relative">
-                {/* Coming Soon Overlay */}
-                <div className="absolute inset-0 z-10 bg-slate-900/80 backdrop-blur-[2px] flex flex-col items-center justify-center rounded-lg border border-slate-700/50">
-                  <MessageSquare size={24} className="text-cyan-500/50 mb-3" />
-                  <p className="text-sm font-semibold text-slate-200">Outreach Engine</p>
-                  <p className="text-xs text-slate-400 mt-1">Backend service not yet connected (Coming in v2)</p>
-                </div>
-                
-                <div className="opacity-30 pointer-events-none blur-[1px]">
-                  {/* Subject lines */}
-                  <div className="mb-5">
-                    <p className="text-xs text-slate-500 font-mono mb-2">SUGGESTED SUBJECT LINES</p>
-                    <div className="space-y-2">
-                      <div className="bg-slate-900/60 border border-slate-700/40 rounded-lg px-4 py-3 flex items-center justify-between gap-3">
-                        <code className="text-xs text-slate-300 flex-1 font-mono leading-relaxed">Relevant to your recent event — Relanto's perspective</code>
-                      </div>
+                {/* Subject lines */}
+                <div className="mb-5">
+                  <p className="text-xs text-slate-500 font-mono mb-2">TARGET CONTACT</p>
+                  <div className="bg-slate-900/60 border border-slate-700/40 rounded-lg px-4 py-3 flex items-center justify-between gap-3 mb-4">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-200">{outreachBrief?.contact_name || 'Loading...'}</p>
+                      <p className="text-xs text-slate-400">{outreachBrief?.contact_role || '...'}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs text-slate-400">{outreachBrief?.contact_email || '...'}</p>
+                      {outreachBrief?.contact_phone && (
+                        <p className="text-xs text-slate-400 mt-0.5">{outreachBrief.contact_phone}</p>
+                      )}
+                      {outreachBrief?.contact_linkedin && (
+                        <a href={outreachBrief.contact_linkedin} target="_blank" rel="noreferrer" className="text-xs text-blue-400 hover:underline">LinkedIn Profile</a>
+                      )}
                     </div>
                   </div>
 
-                  {/* Narrative */}
-                  <div className="mb-5">
-                    <p className="text-xs text-slate-500 font-mono mb-2">OUTREACH NARRATIVE</p>
-                    <textarea
-                      value="Drafting email..."
-                      readOnly
-                      rows={4}
-                      className="w-full bg-slate-900/60 border border-slate-700/40 rounded-lg px-4 py-3 text-sm text-slate-300 font-mono leading-relaxed resize-none"
-                    />
+                  {/* Channel Tabs */}
+                  <div className="flex items-center gap-2 mb-4 border-b border-slate-700/50 pb-2">
+                    <button 
+                      onClick={() => { setActiveTab('email'); setNarrative(outreachBrief?.body || '') }}
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${activeTab === 'email' ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'}`}
+                    >
+                      <Mail size={14} /> Email
+                    </button>
+                    <button 
+                      onClick={() => { setActiveTab('linkedin'); setNarrative(outreachBrief?.linkedin_draft || '') }}
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${activeTab === 'linkedin' ? 'bg-blue-500/20 text-blue-400' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'}`}
+                    >
+                      <Link size={14} /> LinkedIn
+                    </button>
+                    <button 
+                      onClick={() => { setActiveTab('whatsapp'); setNarrative(outreachBrief?.whatsapp_draft || '') }}
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${activeTab === 'whatsapp' ? 'bg-green-500/20 text-green-400' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'}`}
+                    >
+                      <Phone size={14} /> WhatsApp
+                    </button>
                   </div>
 
-                  {/* Follow-up */}
-                  <div>
-                    <p className="text-xs text-slate-500 font-mono mb-2">FOLLOW-UP TIMELINE</p>
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs font-mono text-slate-500 w-12 flex-shrink-0">Day 1</span>
-                        <div className="flex-1 h-px bg-slate-700" />
-                        <span className="text-xs text-slate-400 flex-1">Send personalized outreach email</span>
+                  {/* Conditional Render Based on Tab */}
+                  {activeTab === 'email' && (
+                    <div className="animate-in fade-in zoom-in-95 duration-200">
+                      <p className="text-xs text-slate-500 font-mono mb-2">GENERATED SUBJECT LINE</p>
+                      <div className="bg-slate-900/60 border border-slate-700/40 rounded-lg px-4 py-3 flex items-center justify-between gap-3 mb-4">
+                        <code className="text-xs text-slate-300 flex-1 font-mono leading-relaxed">{outreachBrief?.subject || 'Drafting...'}</code>
                       </div>
+                      <p className="text-xs text-slate-500 font-mono mb-2">OUTREACH EMAIL CONTENT</p>
+                      <textarea
+                        value={outreachBrief?.body || 'Drafting email...'}
+                        readOnly
+                        rows={6}
+                        className="w-full bg-slate-900/60 border border-slate-700/40 rounded-lg px-4 py-3 text-sm text-slate-300 font-mono leading-relaxed resize-none focus:outline-none focus:border-emerald-500/50"
+                      />
+                    </div>
+                  )}
+
+                  {activeTab === 'linkedin' && (
+                    <div className="animate-in fade-in zoom-in-95 duration-200">
+                      <p className="text-xs text-slate-500 font-mono mb-2">AI-READY LINKEDIN DRAFT</p>
+                      <div className="bg-slate-900/60 border border-blue-500/40 rounded-lg px-4 py-3 flex items-start justify-between gap-3 mb-2">
+                        <code className="text-sm text-slate-300 flex-1 font-mono leading-relaxed whitespace-pre-wrap">{outreachBrief?.linkedin_draft || 'Drafting...'}</code>
+                      </div>
+                      <p className="text-[10px] text-slate-500 font-mono">⚠️ Safety: Copy and paste this manually to avoid account restrictions.</p>
+                    </div>
+                  )}
+
+                  {activeTab === 'whatsapp' && (
+                    <div className="animate-in fade-in zoom-in-95 duration-200">
+                      <p className="text-xs text-slate-500 font-mono mb-2">WARM WHATSAPP DRAFT</p>
+                      <div className="bg-slate-900/60 border border-green-500/40 rounded-lg px-4 py-3 flex items-start justify-between gap-3 mb-2">
+                        <code className="text-sm text-slate-300 flex-1 font-mono leading-relaxed whitespace-pre-wrap">{outreachBrief?.whatsapp_draft || 'Drafting...'}</code>
+                      </div>
+                      {outreachBrief?.contact_phone ? (
+                        <p className="text-[10px] text-green-400 font-mono flex items-center gap-1"><CheckCircle size={10} /> Phone number detected. Ready for API dispatch.</p>
+                      ) : (
+                        <p className="text-[10px] text-amber-400 font-mono flex items-center gap-1"><AlertTriangle size={10} /> No phone number available.</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Follow-up */}
+                <div>
+                  <p className="text-xs text-slate-500 font-mono mb-2">FOLLOW-UP TIMELINE</p>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-mono text-slate-500 w-12 flex-shrink-0">Day 1</span>
+                      <div className="flex-1 h-px bg-slate-700" />
+                      <span className="text-xs text-slate-400 flex-1">Send personalized outreach email</span>
                     </div>
                   </div>
                 </div>
@@ -255,21 +327,15 @@ export default function OutreachBrief() {
             {/* Timing intelligence */}
             <Section title="Timing Intelligence" icon={Clock} accent="amber">
               <div className="relative">
-                <div className="absolute inset-0 z-10 bg-slate-900/80 backdrop-blur-[2px] flex flex-col items-center justify-center rounded-lg border border-slate-700/50 p-4 text-center">
-                  <Clock size={24} className="text-amber-500/50 mb-3" />
-                  <p className="text-sm font-semibold text-slate-200">Timing Engine</p>
-                  <p className="text-xs text-slate-400 mt-1">Backend service not yet connected (Coming in v2)</p>
-                </div>
-                
-                <div className="opacity-30 pointer-events-none blur-[1px]">
+                <div>
                   <div className="space-y-3 mb-4">
                     <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-3 py-2">
                       <p className="text-xs text-slate-400 font-mono mb-0.5">BEST WINDOW</p>
-                      <p className="text-sm font-semibold text-emerald-300">TBD</p>
+                      <p className="text-sm font-semibold text-emerald-300">9:30 AM Local Time</p>
                     </div>
                     <div className="bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
                       <p className="text-xs text-slate-400 font-mono mb-0.5">AVOID</p>
-                      <p className="text-xs text-red-300">TBD</p>
+                      <p className="text-xs text-red-300">Weekends, Late Nights</p>
                     </div>
                   </div>
 

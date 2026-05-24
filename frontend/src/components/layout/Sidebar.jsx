@@ -9,12 +9,14 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
+  Globe2
 } from 'lucide-react'
 import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 
 const NAV_ITEMS = [
   { label: 'Dashboard',    path: '/dashboard',  icon: LayoutDashboard },
+  { label: 'Global Map',   path: '/map',        icon: Globe2 },
   { label: 'Companies',    path: '/companies',  icon: Building2 },
   { label: 'Triggers',     path: '/triggers',   icon: Zap },
   { label: 'Outreach',     path: '/outreach',   icon: FileText },

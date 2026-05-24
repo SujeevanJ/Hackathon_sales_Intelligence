@@ -34,6 +34,13 @@ class Company(Base):
     public_sources = Column(JSON, nullable=True)
     recommended_scrape_strategy = Column(JSON, nullable=True)
     is_active = Column(Boolean, default=True)
+    
+    # Map & Scoring fields
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
+    country = Column(String, nullable=True)
+    region = Column(String, nullable=True)
+    slm_score = Column(Integer, nullable=True)
 
     articles = relationship("ScrapedArticle", back_populates="company")
     triggers = relationship("TriggerEvent", back_populates="company")
@@ -83,8 +90,17 @@ class OutreachBrief(Base):
     id = Column(Integer, primary_key=True, index=True)
     company_id = Column(Integer, ForeignKey("companies.id"))
     trigger_id = Column(Integer, ForeignKey("trigger_events.id"))
+    
+    contact_name = Column(String, nullable=True)
+    contact_role = Column(String, nullable=True)
+    contact_linkedin = Column(String, nullable=True)
+    contact_email = Column(String, nullable=True)
+    contact_phone = Column(String, nullable=True)
+    
     subject = Column(String)
     body = Column(Text)
+    linkedin_draft = Column(Text, nullable=True)
+    whatsapp_draft = Column(Text, nullable=True)
     persona = Column(String)
     recommended_send_time = Column(DateTime(timezone=True))
     created_at = Column(DateTime(timezone=True), server_default=func.now())

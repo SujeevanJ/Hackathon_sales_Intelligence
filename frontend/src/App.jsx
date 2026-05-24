@@ -5,7 +5,9 @@ import Dashboard from './pages/Dashboard'
 import Companies from './pages/Companies'
 import Triggers from './pages/Triggers'
 import OutreachBrief from './pages/OutreachBrief'
+import Outreaches from './pages/Outreaches'
 import Analytics from './pages/Analytics'
+import GlobalMap from './pages/GlobalMap'
 import Login from './pages/Login'
 import { useState } from 'react'
 import { useAuth } from './context/AuthContext'
@@ -34,9 +36,10 @@ export default function App() {
       <Route element={<ProtectedRoute />}>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/map" element={<GlobalMap />} />
         <Route path="/companies" element={<Companies />} />
         <Route path="/triggers" element={<Triggers />} />
-        <Route path="/outreach" element={<Navigate to="/triggers" replace />} />
+        <Route path="/outreach" element={<Outreaches />} />
         <Route path="/outreach/:triggerId" element={<OutreachBrief />} />
         <Route path="/analytics" element={<Analytics />} />
       </Route>

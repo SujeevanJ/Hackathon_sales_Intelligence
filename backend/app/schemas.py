@@ -31,6 +31,12 @@ class CompanyBase(BaseModel):
     priority: Optional[str] = "medium"
     is_active: Optional[bool] = True
 
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    country: Optional[str] = None
+    region: Optional[str] = None
+    slm_score: Optional[int] = None
+
 class CompanyCreate(CompanyBase):
     pass
 
@@ -73,8 +79,15 @@ class TriggerEvent(TriggerEventBase):
         from_attributes = True
 
 class OutreachBriefBase(BaseModel):
+    contact_name: Optional[str] = None
+    contact_role: Optional[str] = None
+    contact_linkedin: Optional[str] = None
+    contact_email: Optional[str] = None
+    contact_phone: Optional[str] = None
     subject: str
     body: str
+    linkedin_draft: Optional[str] = None
+    whatsapp_draft: Optional[str] = None
     persona: str
     recommended_send_time: Optional[datetime] = None
 

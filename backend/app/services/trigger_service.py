@@ -134,6 +134,11 @@ def process_unprocessed_articles(db: Session):
             result = analyze_article(db, article)
             if result:
                 triggers_found += 1
+                try:
+                    from app.services.outreach_service import process_outreach_pipeline
+                    process_outreach_pipeline(db, result.id)
+                except Exception as e:
+                    logger.error(f"Failed to process outreach pipeline: {e}")
             
             # Groq free tier limit is ~30 RPM. Sleep to avoid 429 errors.
             time.sleep(2.5)

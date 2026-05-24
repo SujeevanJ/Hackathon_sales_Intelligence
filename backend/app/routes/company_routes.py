@@ -4,6 +4,7 @@ from typing import List
 from app.database import get_db
 from app.models import Company, TriggerEvent
 from app.schemas import Company as CompanySchema, TriggerEvent as TriggerEventSchema
+from app.services.enrichment_service import bulk_enrich_companies
 
 router = APIRouter()
 
@@ -27,3 +28,8 @@ def get_company_triggers(company_id: int, db: Session = Depends(get_db)):
     
     triggers = db.query(TriggerEvent).filter(TriggerEvent.company_id == company_id).order_by(TriggerEvent.created_at.desc()).all()
     return triggers
+
+@router.post("/enrich", summary="Geocode and score all companies via SLM")
+async def trigger_company_enrichment(db: Session = Depends(get_db)):
+    result = await bulk_enrich_companies(db)
+    return result

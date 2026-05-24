@@ -77,3 +77,25 @@ export async function healthCheck() {
     return false
   }
 }
+
+// ── Outreaches ────────────────────────────────────────
+export async function getOutreaches(token, skip = 0, limit = 100) {
+  const res = await fetch(`${BASE}/outreaches/?skip=${skip}&limit=${limit}`, {
+    headers: authHeader(token),
+  })
+  return handleResponse(res)
+}
+
+export async function getOutreachStats(token) {
+  const res = await fetch(`${BASE}/outreaches/stats`, {
+    headers: authHeader(token),
+  })
+  return handleResponse(res)
+}
+
+export async function getOutreachByTrigger(token, triggerId) {
+  const res = await fetch(`${BASE}/outreaches/trigger/${triggerId}`, {
+    headers: authHeader(token),
+  })
+  return handleResponse(res)
+}
