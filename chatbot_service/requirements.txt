@@ -3,3 +3,7 @@ uvicorn
 groq
 pydantic
 httpx
+openai
+SQLAlchemy
+psycopg2-binary
+python-dotenv
