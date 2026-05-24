@@ -55,9 +55,11 @@ export function ChatWidget() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, streamingMessage]);
 
+  const CHAT_BASE = import.meta.env.VITE_CHAT_API_BASE_URL || '/api/chat';
+
   const fetchHistory = async () => {
     try {
-      const response = await fetch(`/api/chat/history/${sessionId}`);
+      const response = await fetch(`${CHAT_BASE}/history/${sessionId}`);
       if (response.ok) {
         const data = await response.json();
         if (data.messages && data.messages.length > 0) {
@@ -72,7 +74,7 @@ export function ChatWidget() {
   const handleClearChat = async () => {
     if (window.confirm("Are you sure you want to clear this chat history?")) {
       try {
-        await fetch(`/api/chat/session/${sessionId}`, {
+        await fetch(`${CHAT_BASE}/session/${sessionId}`, {
           method: "DELETE",
         });
       } catch (e) {
@@ -104,7 +106,7 @@ export function ChatWidget() {
 
     try {
       // 2. Make SSE POST request to microservice
-      const response = await fetch("/api/chat/message", {
+      const response = await fetch(`${CHAT_BASE}/message`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
