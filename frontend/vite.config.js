@@ -15,7 +15,7 @@ export default defineConfig({
         changeOrigin: true,
       },
       '/api': {
-        target: 'http://localhost:8000',
+        target: 'https://hackathon-sales-intelligence.onrender.com', // 'http://localhost:8000'
         changeOrigin: true,
       }
     }
