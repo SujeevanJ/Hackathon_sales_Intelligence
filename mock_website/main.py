@@ -27,16 +27,17 @@ def publish_news(item: NewsItem):
     return {"message": "News published successfully", "article": item}
 
 @app.get("/rss")
-def get_rss_feed():
+def get_rss_feed(request: Request):
     """
     Simulates a Google News RSS feed for Demo Corp.
     """
+    base_url = str(request.base_url).rstrip("/")
     rss_items = ""
     for article in [a for a in mock_articles if a.source_type == "news"]:
         rss_items += f"""
         <item>
             <title>{article.title}</title>
-            <link>http://localhost:8001/news/{hash(article.title)}</link>
+            <link>{base_url}/news/{hash(article.title)}</link>
             <description>{article.content}</description>
             <pubDate>{article.published_at}</pubDate>
         </item>
@@ -46,7 +47,7 @@ def get_rss_feed():
     <rss version="2.0">
         <channel>
             <title>Demo Corp - Google News Search</title>
-            <link>http://localhost:8001</link>
+            <link>{base_url}</link>
             <description>Latest news about Demo Corp</description>
             {rss_items}
         </channel>
