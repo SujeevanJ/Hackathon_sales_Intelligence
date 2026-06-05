@@ -11,11 +11,11 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api/chat': {
-        target: 'https://hackathon-sales-intelligence-chatbot-sera.onrender.com', // Change to 'http://localhost:8002' for local microservice
+        target: 'http://localhost:8002', // Change to 'https://hackathon-sales-intelligence-chatbot-sera.onrender.com' for production
         changeOrigin: true,
       },
       '/api': {
-        target: 'https://hackathon-sales-intelligence.onrender.com', // Change to 'http://localhost:8000' for local backend
+        target: 'http://localhost:8000', // Change to 'https://hackathon-sales-intelligence.onrender.com' for production
         changeOrigin: true,
       }
     }
