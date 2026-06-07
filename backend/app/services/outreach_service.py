@@ -6,31 +6,36 @@ from email.mime.multipart import MIMEMultipart
 from sqlalchemy.orm import Session
 from app.models import TriggerEvent, Company, OutreachBrief, RelantoService
 from app.config import settings
-from app.services.trigger_service import call_llm
+from app.services.trigger_service import call_outreach_slm, call_persona_slm
 from googlesearch import search
 import httpx
 import time
 import re
+from datetime import datetime, timedelta
+import pytz
 
 logger = logging.getLogger(__name__)
 
 def infer_persona(trigger_event: TriggerEvent) -> str:
-    """Uses LLM to determine the best persona to contact based on the trigger."""
-    prompt = f"""
-    You are an expert B2B sales strategist. A trigger event has occurred at a target company.
-    Trigger Event Type: {trigger_event.event_type}
-    Trigger Summary: {trigger_event.summary}
-    Business Impact: {trigger_event.business_impact}
-    
-    Based on this, what is the SINGLE best C-level or VP-level persona (role title) to contact regarding our services?
-    Provide ONLY the job title (e.g., "VP Engineering", "Head of AI", "CIO", "CTO", "VP Marketing").
     """
-    response = call_llm(f"{{ \"instructions\": \"{prompt}\", \"output_format\": \"return a JSON object with a single key 'persona' containing the title string.\" }}")
-    
+    Persona Inference using llama-3.2-3b-preview (Persona SLM).
+    Simple classification task — given a trigger, return the best C-level role to contact.
+    Speed is prioritized over prose quality here.
+    """
+    prompt = f"""You are a B2B sales strategist. A trigger event occurred at a target company.
+Trigger Event Type: {trigger_event.event_type}
+Trigger Summary: {trigger_event.summary}
+Business Impact: {trigger_event.business_impact}
+
+Return a JSON object with a single key "persona" containing the SINGLE best C-level or VP-level job title to contact (e.g., "VP Engineering", "CTO", "CIO", "Head of AI", "VP Marketing").
+Output only valid JSON."""
+
+    response = call_persona_slm(prompt)
+
     try:
         data = json.loads(response)
-        return data.get("persona", "CTO") # Fallback to CTO
-    except:
+        return data.get("persona", "CTO")
+    except Exception:
         return "CTO"
 
 def discover_contact(company_name: str, persona: str) -> dict:
@@ -126,7 +131,11 @@ def enrich_contact(contact: dict, company_domain: str, company_name: str) -> str
     return f"{first_name.lower()}.{last_name.lower()}@{domain}"
 
 def generate_multi_channel_content(db: Session, trigger_event: TriggerEvent, company: Company, contact: dict) -> dict:
-    """Uses LLM to draft personalized Email, LinkedIn, and WhatsApp messages."""
+    """
+    Outreach Content Generation using mixtral-8x7b-32768 (Outreach SLM).
+    Mixtral 8x7B is chosen for its superior instruction-following and business writing quality
+    — producing more natural, personalized email/LinkedIn/WhatsApp copy than smaller models.
+    """
     
     # Get the recommended Relanto service details
     service = db.query(RelantoService).filter(RelantoService.name == trigger_event.recommended_service).first()
@@ -172,18 +181,124 @@ def generate_multi_channel_content(db: Session, trigger_event: TriggerEvent, com
     }}
     """
     
-    response = call_llm(prompt)
+    # Use Outreach SLM: mixtral-8x7b-32768 — best writing quality on Groq
+    response = call_outreach_slm(prompt)
     try:
         data = json.loads(response)
         return data
     except Exception as e:
-        logger.error(f"Error generating multi-channel content: {e}")
+        logger.error(f"Error generating multi-channel content (mixtral-8x7b-32768): {e}")
         return {
             "email_subject": f"Thoughts on {company.name}'s recent initiatives",
             "email_body": f"Hi {contact.get('name', '')},\n\nI saw the recent news and wanted to see if Relanto could help.\n\nBest,\nRelanto Team",
             "linkedin_draft": f"Hi {contact.get('name', '')}, noticed your recent moves at {company.name}. Let's connect!",
             "whatsapp_draft": f"Hi {contact.get('name', '')}, just sent over an email regarding {company.name}'s recent updates. Talk soon!"
         }
+
+OUTREACH_SCORE_THRESHOLD = 70  # score >= 70 = green = eligible for outreach
+
+def compute_outreach_score(trigger: TriggerEvent, company: Company, contact: dict) -> dict:
+    """
+    Composite Outreach Readiness Score (0–100). Threshold = 70.
+
+    Components:
+      - Trigger Confidence  40%: SLM certainty (0.8=80pts, 0.9=90pts)
+      - Company Priority    20%: High=100, Medium=55, Low=25
+      - Signal Recency      20%: <7d=100, <14d=75, <30d=50, <60d=25, older=10
+      - Data Completeness   20%: contact@ email=15, heuristic email=40,
+                                  real name+20, role+15, linkedin+15
+
+    With current data (0.80-0.90 confidence, high/medium/low priority):
+      HIGH   + 0.80 confidence → ~78  GREEN ✓
+      MEDIUM + 0.90 confidence → ~73  GREEN ✓
+      MEDIUM + 0.80 confidence → ~69  RED   ✓
+      LOW    + any confidence  → ~64  RED   ✓
+    This gives a genuine green/red split rather than everything passing.
+    """
+    from datetime import timezone as dt_timezone
+
+    # 1. Trigger confidence (0–100)
+    confidence_score = round((trigger.confidence_score or 0) * 100, 1)
+
+    # 2. Company priority — medium is deliberately below the pass line on its own
+    priority_map = {"high": 100, "medium": 55, "low": 25}
+    priority_score = priority_map.get((company.priority or "medium").lower(), 55)
+
+    # 3. Signal recency (0–100)
+    now = datetime.now(dt_timezone.utc)
+    created = trigger.created_at
+    if created and created.tzinfo is None:
+        created = created.replace(tzinfo=dt_timezone.utc)
+    days_old = (now - created).days if created else 99
+    if days_old < 7:
+        recency_score = 100
+    elif days_old < 14:
+        recency_score = 75
+    elif days_old < 30:
+        recency_score = 50
+    elif days_old < 60:
+        recency_score = 25
+    else:
+        recency_score = 10
+
+    # 4. Data completeness (0–100)
+    completeness_score = 0
+    email = contact.get("email") or ""
+    if email and "@" in email:
+        local = email.split("@")[0]
+        if local in ("contact", "info", "support", "admin", "hello", "sales"):
+            completeness_score += 15   # generic mailbox — exists but low value
+        elif "." in local or "_" in local:
+            completeness_score += 40   # first.last pattern — heuristic but usable
+        else:
+            completeness_score += 25   # single-name, uncertain
+
+    name = contact.get("name") or ""
+    if name and "Placeholder" not in name:
+        completeness_score += 20       # real discovered name
+    if contact.get("role"):
+        completeness_score += 15       # persona always inferred
+    if contact.get("linkedin_url"):
+        completeness_score += 15       # linkedin found
+    completeness_score = min(completeness_score, 100)
+
+    # Weighted composite
+    total = round(
+        confidence_score   * 0.40 +
+        priority_score     * 0.20 +
+        recency_score      * 0.20 +
+        completeness_score * 0.20,
+        1
+    )
+
+    return {
+        "total": total,
+        "passed": total >= OUTREACH_SCORE_THRESHOLD,
+        "breakdown": {
+            "confidence":   round(confidence_score, 1),
+            "priority":     round(priority_score, 1),
+            "recency":      round(recency_score, 1),
+            "completeness": round(completeness_score, 1),
+        }
+    }
+
+
+def calculate_optimal_send_time(timezone_str: str) -> datetime:
+    """Calculate next 9:30 AM in the company's local timezone, skipping weekends."""
+    try:
+        tz = pytz.timezone(timezone_str)
+    except Exception:
+        tz = pytz.timezone("America/New_York")  # fallback
+
+    now_local = datetime.now(tz)
+    # Start from tomorrow to always give a future time
+    candidate = now_local.replace(hour=9, minute=30, second=0, microsecond=0) + timedelta(days=1)
+
+    # Skip weekends (5=Saturday, 6=Sunday)
+    while candidate.weekday() >= 5:
+        candidate += timedelta(days=1)
+
+    return candidate
 
 def send_cold_email(to_email: str, subject: str, body: str):
     """Sends the email using SMTP if configured, otherwise prints to console."""
@@ -246,10 +361,25 @@ def process_outreach_pipeline(db: Session, trigger_id: int):
     contact['email'] = email
     logger.info(f"Enriched email: {email}")
     
-    # Step 5: Generate Omni-Channel Content
+    # Step 5: Compute Outreach Readiness Score BEFORE generating content
+    score_result = compute_outreach_score(trigger, company, contact)
+    outreach_score = score_result["total"]
+    passed_threshold = score_result["passed"]
+    score_breakdown = score_result["breakdown"]
+    logger.info(
+        f"Outreach score for trigger {trigger_id}: {outreach_score}/100 "
+        f"({'PASS' if passed_threshold else 'FAIL'}) — breakdown: {score_breakdown}"
+    )
+
+    # Step 6: Generate Omni-Channel Content
     outreach_content = generate_multi_channel_content(db, trigger, company, contact)
-    
-    # Save to Database
+
+    # Step 7: Calculate optimal send time (9:30 AM in company's local timezone)
+    company_timezone = company.timezone or "America/New_York"
+    optimal_send_time = calculate_optimal_send_time(company_timezone)
+    logger.info(f"Optimal send time for {company.name} ({company_timezone}): {optimal_send_time}")
+
+    # Save to Database — always save the brief so the sales rep can see the score
     brief = OutreachBrief(
         company_id=company.id,
         trigger_id=trigger.id,
@@ -262,21 +392,31 @@ def process_outreach_pipeline(db: Session, trigger_id: int):
         body=outreach_content.get('email_body', ''),
         linkedin_draft=outreach_content.get('linkedin_draft', ''),
         whatsapp_draft=outreach_content.get('whatsapp_draft', ''),
-        persona=persona
+        persona=persona,
+        recommended_send_time=optimal_send_time,
+        outreach_score=outreach_score,
+        passed_threshold=passed_threshold,
+        score_breakdown=score_breakdown,
     )
-    
+
     db.add(brief)
-    
+
     # Update Trigger Status
     trigger.status = "Outreach Drafted"
-    
     db.commit()
     db.refresh(brief)
-    
-    # Step 6: Send Email (or mock print)
+
+    # Step 8: Only send email if score passes threshold (green gate)
+    if not passed_threshold:
+        logger.warning(
+            f"Outreach BLOCKED for trigger {trigger_id} — score {outreach_score}/100 "
+            f"below threshold {OUTREACH_SCORE_THRESHOLD}. Brief saved as Draft for review."
+        )
+        return brief
+
     if contact.get('email'):
         send_cold_email(contact['email'], brief.subject, brief.body)
         trigger.status = "Outreach Sent"
         db.commit()
-        
+
     return brief

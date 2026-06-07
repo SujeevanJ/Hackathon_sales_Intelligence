@@ -96,6 +96,23 @@ class OutreachBrief(OutreachBriefBase):
     company_id: int
     trigger_id: int
     created_at: datetime
+    approval_status: Optional[str] = "Draft"
+    rejected_reason: Optional[str] = None
+    edited_by: Optional[int] = None
+    approved_by: Optional[int] = None
+    outreach_score: Optional[float] = None
+    passed_threshold: Optional[bool] = False
+    score_breakdown: Optional[dict] = None
 
     class Config:
         from_attributes = True
+
+# ── Approval workflow request bodies ─────────────────
+class OutreachBriefUpdate(BaseModel):
+    subject: Optional[str] = None
+    body: Optional[str] = None
+    linkedin_draft: Optional[str] = None
+    whatsapp_draft: Optional[str] = None
+
+class RejectRequest(BaseModel):
+    reason: str

@@ -105,8 +105,23 @@ class OutreachBrief(Base):
     recommended_send_time = Column(DateTime(timezone=True))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+    # Human-in-the-loop approval workflow
+    # Flow: Draft → Pending Approval → Approved → Sent  (or Rejected)
+    approval_status = Column(String, default="Draft")
+    rejected_reason = Column(String, nullable=True)
+    edited_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+    approved_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+
+    # Outreach Readiness Score — composite score gating outreach eligibility
+    # Score 0-100. passed_threshold=True only when score >= 60
+    outreach_score = Column(Float, nullable=True)
+    passed_threshold = Column(Boolean, default=False)
+    score_breakdown = Column(JSON, nullable=True)  # {confidence, priority, recency, completeness}
+
     company = relationship("Company", back_populates="outreach_briefs")
     trigger = relationship("TriggerEvent", back_populates="outreach_brief")
+    editor = relationship("User", foreign_keys=[edited_by])
+    approver = relationship("User", foreign_keys=[approved_by])
 
 class RelantoService(Base):
     __tablename__ = "relanto_services"
