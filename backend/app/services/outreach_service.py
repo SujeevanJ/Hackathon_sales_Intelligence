@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 def infer_persona(trigger_event: TriggerEvent) -> str:
     """
-    Persona Inference using llama-3.2-3b-preview (Persona SLM).
+    Persona Inference using llama-3.1-8b-instant (Persona SLM).
     Simple classification task — given a trigger, return the best C-level role to contact.
     Speed is prioritized over prose quality here.
     """
@@ -132,9 +132,8 @@ def enrich_contact(contact: dict, company_domain: str, company_name: str) -> str
 
 def generate_multi_channel_content(db: Session, trigger_event: TriggerEvent, company: Company, contact: dict) -> dict:
     """
-    Outreach Content Generation using mixtral-8x7b-32768 (Outreach SLM).
-    Mixtral 8x7B is chosen for its superior instruction-following and business writing quality
-    — producing more natural, personalized email/LinkedIn/WhatsApp copy than smaller models.
+    Outreach Content Generation using llama-3.1-8b-instant (Outreach SLM).
+    Llama 3.1 8B is chosen as the active SLM for its speed, low latency, and good instruction-following capabilities.
     """
     
     # Get the recommended Relanto service details
@@ -181,13 +180,13 @@ def generate_multi_channel_content(db: Session, trigger_event: TriggerEvent, com
     }}
     """
     
-    # Use Outreach SLM: mixtral-8x7b-32768 — best writing quality on Groq
+    # Use Outreach SLM: llama-3.1-8b-instant
     response = call_outreach_slm(prompt)
     try:
         data = json.loads(response)
         return data
     except Exception as e:
-        logger.error(f"Error generating multi-channel content (mixtral-8x7b-32768): {e}")
+        logger.error(f"Error generating multi-channel content (llama-3.1-8b-instant): {e}")
         return {
             "email_subject": f"Thoughts on {company.name}'s recent initiatives",
             "email_body": f"Hi {contact.get('name', '')},\n\nI saw the recent news and wanted to see if Relanto could help.\n\nBest,\nRelanto Team",

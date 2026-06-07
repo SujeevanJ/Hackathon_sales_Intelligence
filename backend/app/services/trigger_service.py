@@ -12,6 +12,35 @@ from openai import OpenAI
 logger = logging.getLogger(__name__)
 
 def call_llm(prompt: str) -> str:
+    # Check if API keys are missing or invalid
+    has_key = False
+    if settings.llm_provider.lower() == "openai" and settings.openai_api_key and not settings.openai_api_key.startswith("your_"):
+        has_key = True
+    elif settings.llm_provider.lower() != "openai" and settings.groq_api_key and not settings.groq_api_key.startswith("your_"):
+        has_key = True
+
+    if not has_key:
+        logger.info("No API keys found or placeholder keys used. Falling back to mock trigger detection.")
+        # If it's a leadership change prompt for Evelyn Drake
+        if "Evelyn Drake" in prompt or "VP of AI Strategy" in prompt:
+            return json.dumps({
+                "has_trigger": True,
+                "event_type": "Leadership Change",
+                "summary": "Dr. Evelyn Drake joins Relanto Demo Corp as VP of AI Strategy & Cloud Modernization",
+                "business_impact": "Requires integration of Retrieval-Augmented Generation, Snowflake/Databricks, and deep learning scaling, requiring executive guidance on cognitive automation.",
+                "recommended_service": "AI Automation",
+                "confidence_score": 0.95
+            })
+        # If it's a hiring or general prompt
+        return json.dumps({
+            "has_trigger": True,
+            "event_type": "Cloud Modernization",
+            "summary": "Expanding enterprise cloud infrastructure and data platforms.",
+            "business_impact": "Needs expert assistance in migrating legacy systems to scalable cloud architectures.",
+            "recommended_service": "Cloud Modernization",
+            "confidence_score": 0.85
+        })
+
     try:
         if settings.llm_provider.lower() == "openai":
             client = OpenAI(api_key=settings.openai_api_key)
@@ -33,6 +62,88 @@ def call_llm(prompt: str) -> str:
             return response.choices[0].message.content
     except Exception as e:
         logger.error(f"LLM Error: {e}")
+        return "{}"
+
+def call_persona_slm(prompt: str) -> str:
+    has_key = False
+    if settings.llm_provider.lower() == "openai" and settings.openai_api_key and not settings.openai_api_key.startswith("your_"):
+        has_key = True
+    elif settings.llm_provider.lower() != "openai" and settings.groq_api_key and not settings.groq_api_key.startswith("your_"):
+        has_key = True
+
+    if not has_key:
+        logger.info("No API keys found or placeholder keys used. Falling back to mock persona inference.")
+        if "Evelyn Drake" in prompt or "VP of AI Strategy" in prompt:
+            return json.dumps({"persona": "VP of AI Strategy & Cloud Modernization"})
+        return json.dumps({"persona": "CTO"})
+
+    try:
+        if settings.llm_provider.lower() == "openai":
+            client = OpenAI(api_key=settings.openai_api_key)
+            response = client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.2,
+                response_format={ "type": "json_object" }
+            )
+            return response.choices[0].message.content
+        else:
+            client = Groq(api_key=settings.groq_api_key)
+            response = client.chat.completions.create(
+                model="llama-3.1-8b-instant",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.2,
+                response_format={ "type": "json_object" }
+            )
+            return response.choices[0].message.content
+    except Exception as e:
+        logger.error(f"Persona SLM Error: {e}")
+        return "{}"
+
+def call_outreach_slm(prompt: str) -> str:
+    has_key = False
+    if settings.llm_provider.lower() == "openai" and settings.openai_api_key and not settings.openai_api_key.startswith("your_"):
+        has_key = True
+    elif settings.llm_provider.lower() != "openai" and settings.groq_api_key and not settings.groq_api_key.startswith("your_"):
+        has_key = True
+
+    if not has_key:
+        logger.info("No API keys found or placeholder keys used. Falling back to mock outreach generation.")
+        if "Evelyn Drake" in prompt or "VP of AI Strategy" in prompt:
+            return json.dumps({
+                "email_subject": "Accelerating AI Strategy & Cloud Modernization at Relanto Demo Corp",
+                "email_body": "Dear Dr. Evelyn Drake,\n\nCongratulations on your new role as VP of AI Strategy & Cloud Modernization at Relanto Demo Corp!\n\nI noticed that you'll be overseeing RAG paradigms, agentic multi-model orchestration, and enterprise Snowflake/Databricks cloud data integrations. Relanto specializes in scaling deep learning infrastructure and SaaS applications with our AI Automation services.\n\nI'd love to share how we have helped similar firms accelerate their cognitive automation initiatives. Do you have 10 minutes for a brief call next Tuesday at 10:00 AM?\n\nWarm regards,\nSales Team\nRelanto",
+                "linkedin_draft": "Hi Dr. Drake, congrats on your new role as VP of AI Strategy & Cloud Modernization! Let's connect to discuss enterprise cognitive automation.",
+                "whatsapp_draft": "Hi Dr. Drake, congrats on the new role! Just sent a quick email about Relanto's AI Automation support for Demo Corp. Let's chat."
+            })
+        return json.dumps({
+            "email_subject": "Optimizing Cloud Infrastructure and Platforms",
+            "email_body": "Hi there,\n\nI saw your recent cloud modernisation initiatives and wanted to reach out. Relanto specializes in Cloud Modernization services designed to scale your infrastructure.\n\nDo you have some time for a brief discussion next week?\n\nBest,\nSales Team\nRelanto",
+            "linkedin_draft": "Hi, saw your cloud modernization initiatives. Let's connect to discuss scaling options.",
+            "whatsapp_draft": "Hi, just sent an email regarding your cloud modernisation updates. Talk soon!"
+        })
+
+    try:
+        if settings.llm_provider.lower() == "openai":
+            client = OpenAI(api_key=settings.openai_api_key)
+            response = client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.2,
+                response_format={ "type": "json_object" }
+            )
+            return response.choices[0].message.content
+        else:
+            client = Groq(api_key=settings.groq_api_key)
+            response = client.chat.completions.create(
+                model="llama-3.1-8b-instant",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.2,
+                response_format={ "type": "json_object" }
+            )
+            return response.choices[0].message.content
+    except Exception as e:
+        logger.error(f"Outreach SLM Error: {e}")
         return "{}"
 
 def analyze_article(db: Session, article: ScrapedArticle):
